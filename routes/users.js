@@ -13,7 +13,7 @@ const User = require("../models/User");
 //@desc        Register a user
 //@access      Public
 router.post(
-  "/",
+  "/", //path
   [
     check("name", "Please add name").not().isEmpty(),
     check("email", "Please include a valid email").isEmail(),
@@ -21,7 +21,7 @@ router.post(
       "password",
       "Please enter a password with 6 or more characters"
     ).isLength({ min: 6 }),
-  ],
+  ], //express-validator checking array
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -41,13 +41,14 @@ router.post(
       });
       const salt = await bcrypt.genSalt(10);
       user.password = await bcrypt.hash(password, salt);
+      //this saves user to mongo db
       await user.save();
       const payload = {
         user: {
           id: user.id,
         },
       };
-      //in jwt.sign we pass in the payload, the secret, an object with options, and a callback with a potential error and token
+      //in jwt.sign we pass in the payload with an id, the secret, an object with options, and a callback with a potential error and token
       jwt.sign(
         payload,
         config.get("jwtSecret"),
@@ -61,7 +62,7 @@ router.post(
       console.error(err.message);
       res.status(500).send("Server Error");
     }
-  }
+  } //callback to handle response
 );
 
 module.exports = router;
